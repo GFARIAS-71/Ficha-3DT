@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ficha de Personagem</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet"/>
+<style>
+  /* ── Reset & Base ───────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --parchment:   #f4edd8;
+    --parchment2:  #ede3c8;
+    --parchment3:  #e2d6b5;
+    --ink:         #2c1f0e;
+    --ink-light:   #5a3e28;
+    --ink-faint:   #8b6b4a;
+    --gold:        #9a7b3e;
+    --gold-light:  #c4a459;
+    --gold-bright: #d4b86a;
+    --red:         #7a2020;
+    --green-dark:  #1e4a28;
+    --border:      #b89a5a;
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    background: #1a1209;
+    background-image:
+      radial-gradient(ellipse at 20% 10%, #2a1e0a 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 90%, #1f1508 0%, transparent 60%);
+    min-height: 100vh;
+    padding: 40px 20px;
+    font-family: 'Crimson Pro', Georgia, serif;
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Sheet ──────────────────────────────────────────────────── */
+  #sheet {
+    width: 100%;
+    max-width: 860px;
+    background: var(--parchment);
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+      linear-gradient(160deg, var(--parchment) 0%, var(--parchment2) 50%, var(--parchment3) 100%);
+    border: 2px solid var(--border);
+    box-shadow:
+      0 0 0 6px #1a1209,
+      0 0 0 8px var(--gold),
+      0 20px 80px rgba(0,0,0,0.8),
+      inset 0 0 60px rgba(154,123,62,0.08);
+    position: relative;
+  }
+
+  /* Corner ornaments */
+  #sheet::before, #sheet::after {
+    content: '';
+    position: absolute;
+    width: 40px; height: 40px;
+    border-color: var(--gold);
+    border-style: solid;
+  }
+  #sheet::before { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
+  #sheet::after  { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
+
+  /* ── Sheet Header ───────────────────────────────────────────── */
+  .sheet-header {
+    text-align: center;
+    padding: 36px 40px 24px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  .sheet-header::after {
+    content: '';
+    display: block;
+    width: 60%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 10px auto 0;
+  }
+
+  .game-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 6px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    opacity: 0.9;
+  }
+
+  .char-name-wrapper {
+    position: relative;
+    display: inline-block;
+    min-width: 300px;
+  }
+
+  [data-field="nome"] {
+    font-family: 'Cinzel', serif;
+    font-size: 2.4rem;
+    font-weight: 900;
+    color: var(--ink);
+    text-align: center;
+    width: 100%;
+    border: none;
+    background: transparent;
+    outline: none;
+    cursor: text;
+    line-height: 1.1;
+  }
+
+  [data-field="nome"]:focus {
+    background: rgba(154,123,62,0.06);
+    border-radius: 4px;
+  }
+
+  [data-field="nome"]::placeholder { color: var(--ink-faint); }
+
+  .name-underline {
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+    margin-top: 4px;
+  }
+
+  /* ── Body Grid ──────────────────────────────────────────────── */
+  .sheet-body {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 0;
+    border-top: none;
+  }
+
+  .col-left {
+    border-right: 1px solid var(--border);
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .col-right {
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  /* ── Section ────────────────────────────────────────────────── */
+  .section-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold-light), transparent);
+  }
+
+  /* ── Portrait ───────────────────────────────────────────────── */
+  #portrait-section { }
+
+  .portrait-frame {
+    width: 100%;
+    aspect-ratio: 3/4;
+    border: 1px solid var(--border);
+    background: var(--parchment2);
+    background-image: linear-gradient(135deg, var(--parchment2) 0%, var(--parchment3) 100%);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color .2s;
+  }
+
+  .portrait-frame:hover { border-color: var(--gold-bright); }
+
+  .portrait-frame::before, .portrait-frame::after {
+    content: '';
+    position: absolute;
+    width: 16px; height: 16px;
+    border-color: var(--gold);
+    border-style: solid;
+    z-index: 2;
+  }
+  .portrait-frame::before { top: 4px; left: 4px; border-width: 1px 0 0 1px; }
+  .portrait-frame::after  { bottom: 4px; right: 4px; border-width: 0 1px 1px 0; }
+
+  .portrait-frame img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    position: absolute; inset: 0;
+  }
+
+  .portrait-placeholder {
+    font-family: 'Cinzel', serif;
+    font-size: 0.62rem;
+    letter-spacing: 2px;
+    color: var(--ink-faint);
+    text-align: center;
+    padding: 10px;
+    user-select: none;
+  }
+
+  #portrait-input { display: none; }
+
+  /* ── Points ─────────────────────────────────────────────────── */
+  .points-track {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .points-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    color: var(--ink-light);
+  }
+
+  .points-fraction {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .points-field {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ink);
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 44px;
+    text-align: center;
+  }
+
+  .points-field:focus {
+    background: rgba(154,123,62,0.08);
+    border-radius: 3px;
+  }
+
+  .points-bar-track {
+    width: 100%;
+    height: 8px;
+    background: var(--parchment3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 2px;
+  }
+
+  .points-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+    border-radius: 4px;
+    transition: width .4s ease;
+  }
+
+  /* ── Attributes ─────────────────────────────────────────────── */
+  .attrs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .attr-cell {
+    border: 1px solid var(--border);
+    background: linear-gradient(160deg, var(--parchment) 0%, var(--parchment2) 100%);
+    text-align: center;
+    padding: 10px 6px 8px;
+    position: relative;
+  }
+
+  .attr-cell::before, .attr-cell::after {
+    content: '';
+    position: absolute;
+    width: 8px; height: 8px;
+    border-color: var(--gold);
+    border-style: solid;
+  }
+  .attr-cell::before { top: 3px; left: 3px; border-width: 1px 0 0 1px; }
+  .attr-cell::after  { bottom: 3px; right: 3px; border-width: 0 1px 1px 0; }
+
+  .attr-name {
+    font-family: 'Cinzel', serif;
+    font-size: 0.55rem;
+    letter-spacing: 2px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .attr-value {
+    font-family: 'Cinzel', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--ink);
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    text-align: center;
+    -moz-appearance: textfield;
+  }
+
+  .attr-value::-webkit-outer-spin-button,
+  .attr-value::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  .attr-value:focus {
+    background: rgba(154,123,62,0.08);
+    border-radius: 3px;
+  }
+
+  /* ── Tag Lists (Pericias, Inventario) ───────────────────────── */
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: flex-start;
+  }
+
+  .tag {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border: 1px solid var(--border);
+    background: var(--parchment2);
+    padding: 3px 10px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.88rem;
+    color: var(--ink);
+    cursor: default;
+    position: relative;
+    transition: background .15s;
+  }
+
+  .tag:hover { background: var(--parchment3); }
+
+  .tag-text {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.88rem;
+    color: var(--ink);
+    min-width: 40px;
+    width: auto;
+  }
+
+  .tag-remove {
+    font-size: 0.7rem;
+    color: var(--ink-faint);
+    cursor: pointer;
+    border: none;
+    background: none;
+    padding: 0 0 0 2px;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity .15s;
+    font-family: monospace;
+  }
+
+  .tag:hover .tag-remove { opacity: 1; }
+
+  .btn-add-tag {
+    border: 1px dashed var(--border);
+    background: transparent;
+    padding: 3px 10px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    cursor: pointer;
+    transition: all .15s;
+    letter-spacing: 1px;
+  }
+
+  .btn-add-tag:hover {
+    border-color: var(--gold-bright);
+    color: var(--gold);
+    background: rgba(154,123,62,0.06);
+  }
+
+  /* ── Vantagens / Desvantagens ───────────────────────────────── */
+  .vd-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .vd-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .vd-item {
+    border-left: 3px solid var(--border);
+    padding: 8px 10px;
+    background: rgba(0,0,0,0.02);
+    position: relative;
+  }
+
+  .vd-item.vantagem  { border-left-color: var(--green-dark); }
+  .vd-item.desvantagem { border-left-color: var(--red); }
+
+  .vd-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+
+  .vd-item-name {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--ink);
+    border: none;
+    background: transparent;
+    outline: none;
+    flex: 1;
+  }
+
+  .vd-item-name:focus { background: rgba(154,123,62,0.07); border-radius: 2px; }
+
+  .vd-item-desc {
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.85rem;
+    font-style: italic;
+    color: var(--ink-light);
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    resize: none;
+    line-height: 1.4;
+    overflow: hidden;
+  }
+
+  .vd-item-desc:focus { background: rgba(154,123,62,0.06); border-radius: 2px; }
+
+  .vd-remove {
+    font-size: 0.7rem;
+    color: var(--ink-faint);
+    cursor: pointer;
+    border: none;
+    background: none;
+    opacity: 0;
+    transition: opacity .15s;
+    font-family: monospace;
+    flex-shrink: 0;
+  }
+
+  .vd-item:hover .vd-remove { opacity: 1; }
+
+  .btn-add-vd {
+    border: 1px dashed var(--border);
+    background: transparent;
+    padding: 5px 10px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    letter-spacing: 1px;
+    transition: all .15s;
+  }
+
+  .btn-add-vd:hover {
+    border-color: var(--gold-bright);
+    color: var(--gold);
+    background: rgba(154,123,62,0.06);
+  }
+
+  /* ── Sub-labels ─────────────────────────────────────────────── */
+  .sub-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.58rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  /* ── Save indicator ─────────────────────────────────────────── */
+  #save-bar {
+    position: fixed;
+    bottom: 20px;
+    right: 24px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    color: var(--gold-bright);
+    background: rgba(26,18,9,0.92);
+    border: 1px solid var(--gold);
+    padding: 7px 16px;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity .3s, transform .3s;
+    pointer-events: none;
+  }
+
+  #save-bar.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── Divider ─────────────────────────────────────────────────── */
+  .ornament-divider {
+    text-align: center;
+    color: var(--gold);
+    font-size: 0.9rem;
+    letter-spacing: 8px;
+    user-select: none;
+    opacity: 0.6;
+    padding: 4px 0;
+  }
+
+  /* ── Focus ring override ─────────────────────────────────────── */
+  input:focus, textarea:focus { box-shadow: none; }
+
+  /* ── Scrollbar ───────────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #1a1209; }
+  ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
+
+  /* ── Sheet footer ────────────────────────────────────────────── */
+  .sheet-footer {
+    border-top: 1px solid var(--border);
+    padding: 12px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: 'Cinzel', serif;
+    font-size: 0.58rem;
+    letter-spacing: 3px;
+    color: var(--ink-faint);
+  }
+
+  .sheet-footer span { color: var(--gold); }
+
+</style>
+</head>
+<body>
+
+<div id="sheet">
+
+  <!-- Header -->
+  <div class="sheet-header">
+    <div class="game-title">Ficha de Personagem</div>
+    <div class="char-name-wrapper">
+      <input type="text" data-field="nome" placeholder="Nome do Personagem" autocomplete="off"/>
+      <span class="name-underline"></span>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="sheet-body">
+
+    <!-- Left Column -->
+    <div class="col-left">
+
+      <!-- Portrait -->
+      <div id="portrait-section">
+        <div class="section-label">Retrato</div>
+        <div class="portrait-frame" id="portrait-frame" title="Clique para adicionar imagem">
+          <div class="portrait-placeholder" id="portrait-placeholder">Clique para<br>adicionar imagem</div>
+          <img id="portrait-img" src="" alt="" style="display:none"/>
+        </div>
+        <input type="file" id="portrait-input" accept="image/*"/>
+      </div>
+
+      <!-- Points -->
+      <div>
+        <div class="section-label">Pontos</div>
+        <div class="points-track">
+          <div class="points-row">
+            <span>Pontos</span>
+            <div class="points-fraction">
+              <input type="number" class="points-field" data-field="pontos_atuais" value="0" min="0"/>
+              <span style="color:var(--border); font-weight:300;">/</span>
+              <input type="number" class="points-field" data-field="pontos_totais" value="10" min="1"/>
+            </div>
+          </div>
+          <div class="points-bar-track">
+            <div class="points-bar-fill" id="points-bar" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Attributes -->
+      <div>
+        <div class="section-label">Atributos</div>
+        <div class="attrs-grid">
+          <div class="attr-cell">
+            <div class="attr-name">Poder</div>
+            <input type="number" class="attr-value" data-field="poder" value="0" min="0"/>
+          </div>
+          <div class="attr-cell">
+            <div class="attr-name">Hab.</div>
+            <input type="number" class="attr-value" data-field="habilidade" value="0" min="0"/>
+          </div>
+          <div class="attr-cell">
+            <div class="attr-name">Res.</div>
+            <input type="number" class="attr-value" data-field="resistencia" value="0" min="0"/>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /col-left -->
+
+    <!-- Right Column -->
+    <div class="col-right">
+
+      <!-- Pericias -->
+      <div>
+        <div class="section-label">Pericias</div>
+        <div class="tag-list" id="pericias-list"></div>
+        <button class="btn-add-tag" style="margin-top:6px" onclick="addTag('pericias')">+ adicionar pericia</button>
+      </div>
+
+      <div class="ornament-divider">- - -</div>
+
+      <!-- Vantagens & Desvantagens -->
+      <div>
+        <div class="section-label">Vantagens e Desvantagens</div>
+        <div class="vd-grid">
+          <div>
+            <span class="sub-label">Vantagens</span>
+            <div class="vd-list" id="vantagens-list"></div>
+            <button class="btn-add-vd" onclick="addVD('vantagens')">+ adicionar vantagem</button>
+          </div>
+          <div>
+            <span class="sub-label">Desvantagens</span>
+            <div class="vd-list" id="desvantagens-list"></div>
+            <button class="btn-add-vd" onclick="addVD('desvantagens')">+ adicionar desvantagem</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ornament-divider">- - -</div>
+
+      <!-- Inventario -->
+      <div>
+        <div class="section-label">Inventario</div>
+        <div class="tag-list" id="inventario-list"></div>
+        <button class="btn-add-tag" style="margin-top:6px" onclick="addTag('inventario')">+ adicionar item</button>
+      </div>
+
+    </div><!-- /col-right -->
+
+  </div><!-- /sheet-body -->
+
+  <div class="sheet-footer">
+    <span>Ficha de Personagem</span>
+    <span id="last-saved-label">Salvo automaticamente</span>
+  </div>
+
+</div><!-- /sheet -->
+
+<div id="save-bar">SALVO</div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'rpg_ficha_v1';
+
+let state = {
+  nome: '',
+  pontos_atuais: 0,
+  pontos_totais: 10,
+  poder: 0,
+  habilidade: 0,
+  resistencia: 0,
+  pericias: [],
+  vantagens: [],
+  desvantagens: [],
+  inventario: [],
+  imagem: null,
+};
+
+// ─── Save / Load ──────────────────────────────────────────────────────────────
+function save() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    flashSaved();
+    const now = new Date();
+    document.getElementById('last-saved-label').textContent =
+      'Salvo ' + now.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+  } catch(e) { console.warn('localStorage unavailable', e); }
+}
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) state = JSON.parse(raw);
+  } catch(e) { }
+}
+
+let saveTimer;
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(save, 600);
+}
+
+function flashSaved() {
+  const bar = document.getElementById('save-bar');
+  bar.classList.add('show');
+  setTimeout(() => bar.classList.remove('show'), 1400);
+}
+
+// ─── Render simple fields ─────────────────────────────────────────────────────
+function renderFields() {
+  const simpleFields = ['nome','pontos_atuais','pontos_totais','poder','habilidade','resistencia'];
+  simpleFields.forEach(f => {
+    const el = document.querySelector(`[data-field="${f}"]`);
+    if (el) el.value = state[f];
+  });
+  updateBar();
+}
+
+// ─── Points bar ───────────────────────────────────────────────────────────────
+function updateBar() {
+  const a = parseInt(state.pontos_atuais) || 0;
+  const t = parseInt(state.pontos_totais) || 1;
+  const pct = Math.min(Math.max(a / t * 100, 0), 100);
+  document.getElementById('points-bar').style.width = pct + '%';
+}
+
+// ─── Portrait ─────────────────────────────────────────────────────────────────
+function renderPortrait() {
+  const img = document.getElementById('portrait-img');
+  const ph  = document.getElementById('portrait-placeholder');
+  if (state.imagem) {
+    img.src = state.imagem;
+    img.style.display = 'block';
+    ph.style.display = 'none';
+  } else {
+    img.src = '';
+    img.style.display = 'none';
+    ph.style.display = '';
+  }
+}
+
+document.getElementById('portrait-frame').addEventListener('click', () => {
+  document.getElementById('portrait-input').click();
+});
+
+document.getElementById('portrait-input').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    state.imagem = e.target.result;
+    renderPortrait();
+    scheduleSave();
+  };
+  reader.readAsDataURL(file);
+  this.value = '';
+});
+
+// ─── Tags (Pericias, Inventario) ──────────────────────────────────────────────
+function renderTags(key) {
+  const container = document.getElementById(key + '-list');
+  container.innerHTML = '';
+  state[key].forEach((text, i) => {
+    const tag = document.createElement('div');
+    tag.className = 'tag';
+
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.className = 'tag-text';
+    inp.value = text;
+    inp.size = Math.max(text.length, 4);
+    inp.addEventListener('input', () => {
+      state[key][i] = inp.value;
+      inp.size = Math.max(inp.value.length, 4);
+      scheduleSave();
+    });
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); addTag(key); }
+      if (e.key === 'Backspace' && inp.value === '') { removeTag(key, i); }
+    });
+
+    const btn = document.createElement('button');
+    btn.className = 'tag-remove';
+    btn.textContent = 'x';
+    btn.addEventListener('click', () => removeTag(key, i));
+
+    tag.appendChild(inp);
+    tag.appendChild(btn);
+    container.appendChild(tag);
+  });
+}
+
+function addTag(key) {
+  state[key].push('');
+  renderTags(key);
+  // focus last
+  const inputs = document.querySelectorAll(`#${key}-list .tag-text`);
+  if (inputs.length) inputs[inputs.length - 1].focus();
+  scheduleSave();
+}
+
+function removeTag(key, i) {
+  state[key].splice(i, 1);
+  renderTags(key);
+  scheduleSave();
+}
+
+// ─── VD (Vantagens / Desvantagens) ────────────────────────────────────────────
+function renderVD(key) {
+  const container = document.getElementById(key + '-list');
+  container.innerHTML = '';
+  const cls = key === 'vantagens' ? 'vantagem' : 'desvantagem';
+
+  state[key].forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = `vd-item ${cls}`;
+
+    const header = document.createElement('div');
+    header.className = 'vd-item-header';
+
+    const nameInp = document.createElement('input');
+    nameInp.type = 'text';
+    nameInp.className = 'vd-item-name';
+    nameInp.placeholder = 'Nome';
+    nameInp.value = item.nome;
+    nameInp.addEventListener('input', () => {
+      state[key][i].nome = nameInp.value;
+      scheduleSave();
+    });
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'vd-remove';
+    removeBtn.textContent = 'x';
+    removeBtn.addEventListener('click', () => { state[key].splice(i,1); renderVD(key); scheduleSave(); });
+
+    header.appendChild(nameInp);
+    header.appendChild(removeBtn);
+
+    const descTA = document.createElement('textarea');
+    descTA.className = 'vd-item-desc';
+    descTA.placeholder = 'Descricao';
+    descTA.value = item.descricao;
+    descTA.rows = 2;
+    descTA.addEventListener('input', () => {
+      state[key][i].descricao = descTA.value;
+      autoResizeTA(descTA);
+      scheduleSave();
+    });
+    setTimeout(() => autoResizeTA(descTA), 0);
+
+    div.appendChild(header);
+    div.appendChild(descTA);
+    container.appendChild(div);
+  });
+}
+
+function autoResizeTA(ta) {
+  ta.style.height = 'auto';
+  ta.style.height = ta.scrollHeight + 'px';
+}
+
+function addVD(key) {
+  state[key].push({ nome: '', descricao: '' });
+  renderVD(key);
+  // focus name of last
+  const items = document.querySelectorAll(`#${key}-list .vd-item-name`);
+  if (items.length) items[items.length - 1].focus();
+  scheduleSave();
+}
+
+// ─── Bind simple fields ───────────────────────────────────────────────────────
+document.querySelectorAll('[data-field]').forEach(el => {
+  el.addEventListener('input', () => {
+    const f = el.dataset.field;
+    state[f] = (el.type === 'number') ? (parseFloat(el.value) || 0) : el.value;
+    if (f === 'pontos_atuais' || f === 'pontos_totais') updateBar();
+    scheduleSave();
+  });
+});
+
+// ─── Full render ──────────────────────────────────────────────────────────────
+function renderAll() {
+  renderFields();
+  renderPortrait();
+  renderTags('pericias');
+  renderTags('inventario');
+  renderVD('vantagens');
+  renderVD('desvantagens');
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+load();
+renderAll();
+</script>
+</body>
+</html>
